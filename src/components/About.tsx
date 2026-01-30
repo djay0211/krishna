@@ -7,9 +7,9 @@ export function About() {
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   const timeline = [
-    { year: '2014', event: 'Krishna Ladies Tailor Founded' },
-    { year: '2016', event: 'Expanded Services to Bridal Wear' },
-    { year: '2019', event: 'Served 2000+ Happy Customers' },
+    { year: '2002', event: 'Krishna Ladies Tailor Founded' },
+    { year: '2015', event: 'Expanded Services to Bridal Wear' },
+    { year: '2018', event: 'Served 2000+ Happy Customers' },
     { year: '2024', event: 'Leading Ladies Tailor in the Region' },
   ];
 
@@ -32,7 +32,7 @@ export function About() {
     {
       icon: Users,
       title: 'Expert Team',
-      description: '10+ years of combined expertise',
+      description: '20+ years of combined expertise',
     },
   ];
 

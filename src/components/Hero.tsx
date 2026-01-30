@@ -68,8 +68,9 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
+            className="w-full px-2 sm:px-4"
           >
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-playfair font-bold text-foreground mb-4 tracking-wide">
+            <h1 className="w-full break-words text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-playfair font-bold text-foreground mb-2 sm:mb-3 md:mb-4 tracking-wide">
               <span className="inline-block">
                 <motion.span
                   className="gradient-text"
@@ -86,7 +87,7 @@ export function Hero() {
                 </motion.span>
               </span>
               <br />
-              <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-foreground/80">
+              <span className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-light text-foreground/80">
                 Ladies Tailor
               </span>
             </h1>
@@ -97,14 +98,14 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="min-h-[60px] flex items-center justify-center"
+            className="min-h-[40px] sm:min-h-[50px] md:min-h-[60px] flex items-center justify-center px-2 sm:px-4"
           >
-            <p className="text-xl sm:text-2xl md:text-3xl text-foreground/90 font-light italic">
+            <p className="text-xs xs:text-sm sm:text-lg md:text-xl lg:text-2xl text-foreground/90 font-light italic text-center leading-relaxed break-words">
               {displayText}
               <motion.span
                 animate={{ opacity: [1, 0] }}
                 transition={{ duration: 0.8, repeat: Infinity }}
-                className="inline-block w-0.5 h-6 sm:h-8 bg-primary ml-1"
+                className="inline-block w-0.5 h-4 sm:h-6 md:h-6 lg:h-8 bg-primary ml-1"
               />
             </p>
           </motion.div>
@@ -114,22 +115,22 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-6 sm:pt-8 px-2 w-full"
           >
             <motion.a
               href="#contact"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 rounded-full bg-gradient-to-r from-primary to-accent text-white text-lg font-medium glow flex items-center gap-2 group"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r from-primary to-accent text-white text-sm sm:text-base lg:text-lg font-medium glow flex items-center justify-center gap-2 group"
             >
-              <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
               Book Your Stitching
             </motion.a>
             <motion.a
               href="#gallery"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 rounded-full glass text-foreground text-lg font-medium border-2 border-primary/30 hover:border-primary transition-colors"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-full glass text-foreground text-sm sm:text-base lg:text-lg font-medium border-2 border-primary/30 hover:border-primary transition-colors text-center"
             >
               View Our Designs
             </motion.a>
@@ -160,33 +161,13 @@ export function Hero() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 2.4, type: 'spring' }}
               >
-                10+
+                20+
               </motion.div>
               <div className="text-sm text-foreground/70 mt-1">Years of Experience</div>
             </div>
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.5 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 rounded-full border-2 border-primary/50 flex items-start justify-center p-2"
-        >
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-1.5 h-1.5 rounded-full bg-primary"
-          />
-        </motion.div>
-      </motion.div>
     </section>
   );
 }
