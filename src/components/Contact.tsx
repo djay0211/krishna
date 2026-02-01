@@ -1,5 +1,5 @@
 import { motion, useInView } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import emailjs from '@emailjs/browser';
@@ -16,59 +16,115 @@ export function Contact() {
   const [errors, setErrors] = useState<{ [k: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  // Validation
-  const newErrors: { [k: string]: string } = {};
-  if (!formData.name.trim()) newErrors.name = 'Full name is required.';
-  if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
-  else if (!/^\+?\d[\d\s-]{6,}$/.test(formData.phone.trim()))
-    newErrors.phone = 'Enter a valid phone number.';
-  if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-    newErrors.email = 'Enter a valid email address.';
-  if (!formData.message.trim()) newErrors.message = 'Message is required.';
-
-  setErrors(newErrors);
-  if (Object.keys(newErrors).length > 0) return;
-
-  setIsSubmitting(true);
-
-  try {
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID!;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID!;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY!;
-
-    if (!serviceId || !templateId || !publicKey) {
-      throw new Error('EmailJS env variables missing');
+  // Initialize EmailJS on component mount
+  useEffect(() => {
+    try {
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      if (publicKey) {
+        emailjs.init(publicKey);
+        console.log('EmailJS initialized successfully');
+      } else {
+        console.error('EmailJS public key not found in environment variables');
+      }
+    } catch (error) {
+      console.error('EmailJS initialization error:', error);
     }
+  }, []);
 
-    const templateParams = {
-      from_name: formData.name,
-      phone: formData.phone,
-      email: formData.email || 'Not provided',
-      message: formData.message,
-    };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    await emailjs.send(serviceId, templateId, templateParams, publicKey);
+    // Validation
+    const newErrors: { [k: string]: string } = {};
+    if (!formData.name.trim()) newErrors.name = 'Full name is required.';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
+    else if (!/^\+?\d[\d\s-]{6,}$/.test(formData.phone.trim()))
+      newErrors.phone = 'Enter a valid phone number.';
+    if (!formData.email.trim()) newErrors.email = 'Email address is required.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()))
+      newErrors.email = 'Enter a valid email address.';
+    if (!formData.message.trim()) newErrors.message = 'Message is required.';
 
-    toast.success('Message sent successfully!', {
-      description: 'We will contact you very soon.',
-    });
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
 
-    setFormData({
-      name: '',
-      phone: '',
-      email: '',
-      message: '',
-    });
-  } catch (error) {
-    console.error('EmailJS Error:', error);
-    toast.error('Failed to send message. Please check setup or try again later.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    setIsSubmitting(true);
+
+    try {
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (!serviceId || !templateId || !publicKey) {
+        const missingVars = [];
+        if (!serviceId) missingVars.push('VITE_EMAILJS_SERVICE_ID');
+        if (!templateId) missingVars.push('VITE_EMAILJS_TEMPLATE_ID');
+        if (!publicKey) missingVars.push('VITE_EMAILJS_PUBLIC_KEY');
+        throw new Error(`Missing EmailJS configuration: ${missingVars.join(', ')}`);
+      }
+
+      const templateParams = {
+        name: formData.name,
+        phone: formData.phone,
+        from_email: formData.email,
+        text: formData.message,
+        year: new Date().getFullYear().toString(),
+      };
+
+      console.log('=== EMAIL SENDING DEBUG INFO ===');
+      console.log('Service ID:', serviceId);
+      console.log('Template ID:', templateId);
+      console.log('Public Key:', publicKey);
+      console.log('Template Parameters:', templateParams);
+      console.log('Variables being sent:');
+      console.log('  - name:', formData.name);
+      console.log('  - phone:', formData.phone);
+      console.log('  - from_email:', formData.email);
+      console.log('  - text:', formData.message);
+      console.log('  - year:', new Date().getFullYear());
+      console.log('================================');
+
+      const response = await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      
+      console.log('Email sent successfully:', response);
+
+      toast.success('Message sent successfully!', {
+        description: 'We will contact you very soon.',
+      });
+
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        message: '',
+      });
+    } catch (error: any) {
+      console.error('=== EmailJS ERROR DETAILS ===');
+      console.error('Error Message:', error?.message);
+      console.error('Error Status:', error?.status);
+      console.error('Error Text:', error?.text);
+      console.error('Full Error Object:', error);
+      console.error('=============================');
+      
+      let errorMessage = 'Failed to send message. Please try again later.';
+      if (error?.status === 422) {
+        errorMessage = 'Invalid email template configuration. Please try again.';
+        console.error('STATUS 422: Template variable mismatch!');
+        console.error('Your form sends: name, phone, from_email, text, year');
+        console.error('Make sure your EmailJS template uses: {{name}}, {{phone}}, {{from_email}}, {{text}}, {{year}}');
+      } else if (error?.text === 'Invalid service ID') {
+        errorMessage = 'Email service configuration error. Please contact support.';
+        console.error('Service ID invalid. Check your .env file.');
+      } else if (error?.status === 401) {
+        errorMessage = 'Authentication failed. Invalid EmailJS public key.';
+        console.error('Public key authentication failed.');
+      }
+      
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
 
   const handleChange = (
@@ -152,7 +208,7 @@ export function Contact() {
 
               <div>
                 <label htmlFor="email" className="block text-foreground mb-2">
-                  Email Address
+                  Email Address *
                 </label>
                 <input
                   type="email"
@@ -160,6 +216,7 @@ export function Contact() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl bg-input-background border-2 border-transparent focus:border-primary outline-none transition-colors text-foreground"
                   placeholder="your.email@example.com"
                 />
